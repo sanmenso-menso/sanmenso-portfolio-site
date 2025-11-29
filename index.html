@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANMENSO | Official Site</title>
+    <meta name="description" content="Victor Brauner Tribute Portfolio">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Zen Kaku Gothic New"', 'sans-serif'],
+                        serif: ['"Shippori Mincho"', 'serif'],
+                    },
+                    colors: {
+                        bgGreen: '#2E8B57',
+                        accentGold: '#FFD700',
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse-fast 2.1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'pulse-fast': {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: "Zen Kaku Gothic New", sans-serif;
+            background-color: #2E8B57;
+            color: black;
+            overflow-x: hidden;
+        }
+        
+        ::selection {
+            background-color: black;
+            color: #FFD700;
+        }
+
+        .clip-path-triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        /* ノイズテクスチャ */
+        .noise-bg {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* オープニングアニメーション用クラス */
+        .stage-0 .green-tri { transform: translate(-120%, -50%) rotate(-45deg); }
+        .stage-0 .yellow-cir { transform: translate(120%, -50%) rotate(45deg); }
+        .stage-0 .blue-sq { transform: translate(0, 120%) rotate(180deg); }
+        
+        .stage-1 .op-text { opacity: 1; }
+        .stage-1 .green-tri, .stage-1 .yellow-cir, .stage-1 .blue-sq { transform: translate(0, 0) rotate(0deg); }
+
+        .stage-2 .op-container { transform: scale(8) rotate(135deg); opacity: 0; }
+        .stage-2 .flash-overlay { opacity: 1; }
+    </style>
+</head>
+<body class="min-h-screen w-full relative">
+
+    <div id="opening" class="fixed inset-0 z-[100] flex items-center justify-center bg-black overflow-hidden cursor-pointer stage-0 transition-opacity duration-500" onclick="skipOpening()">
+        <div id="op-container" class="op-container relative w-64 h-64 transition-transform duration-300 ease-in-out">
+            
+            <div class="green-tri absolute inset-0 flex items-center justify-center mix-blend-screen transition-all duration-300 ease-out">
+                <div class="w-48 h-48 bg-[#2E8B57] clip-path-triangle animate-pulse-fast"></div>
+            </div>
+
+            <div class="yellow-cir absolute inset-0 flex items-center justify-center mix-blend-screen transition-all duration-300 ease-out delay-75">
+                <div class="w-48 h-48 rounded-full bg-[#FFD700] opacity-80 animate-pulse-fast"></div>
+            </div>
+
+            <div class="blue-sq absolute inset-0 flex items-center justify-center mix-blend-exclusion transition-all duration-300 ease-out delay-100">
+                <div class="w-40 h-40 bg-blue-600 rotate-45 animate-pulse-fast"></div>
+            </div>
+
+            <div class="op-text absolute inset-0 flex items-center justify-center z-10 transition-opacity duration-300 opacity-0">
+                <span class="text-white font-black text-4xl tracking-[0.5em] mix-blend-difference text-center">SAN<br/>MEN<br/>SOU</span>
+            </div>
+        </div>
+
+        <div class="flash-overlay absolute inset-0 bg-[#FFD700] pointer-events-none transition-opacity duration-300 ease-out opacity-0"></div>
+        
+        <div class="absolute bottom-8 text-white/50 text-xs font-mono animate-pulse">
+            [ CLICK TO SKIP ]
+        </div>
+    </div>
+
+    <div class="fixed inset-0 opacity-10 pointer-events-none mix-blend-multiply noise-bg"></div>
+    <div id="shapes-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        </div>
+
+    <div id="main-content" class="relative z-10 max-w-7xl mx-auto px-6 py-8 min-h-screen flex flex-col opacity-0 transition-opacity duration-1000">
+        
+        <header class="mb-12 flex flex-col md:flex-row justify-between items-center">
+            
+         <div class="flex flex-col gap-1 select-none cursor-pointer group">
+           <a href="index.html">
+             <img src="SANMENlogo.png" alt="Icon" class="w-48 border-2 border-black shadow-[4px_4px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+           </a>
+    
+          <div class="flex items-center mt-2">
+             <div class="bg-orange-500 h-1 w-8 mr-2"></div>
+            <h1 class="text-4xl font-sans font-bold tracking-tighter leading-none relative z-10 mix-blend-multiply">
+              SANMENso official site
+            </h1>
+          </div>
+         </div>
+
+            <nav class="mt-8 md:mt-0 flex gap-4 flex-wrap">
+               <a href="about.html">
+                   <button class="relative px-6 py-2 bg-white border-2 border-black font-sans font-bold text-lg hover:bg-black hover:text-[#FFD700] transition-colors shadow-[4px_4px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">ABOUT</button>
+               </a>
+               <a href="works.html">
+                   <button class="relative px-6 py-2 bg-white border-2 border-black font-sans font-bold text-lg hover:bg-black hover:text-[#FFD700] transition-colors shadow-[4px_4px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">WORKS</button>
+               </a>
+               <a href="links.html">
+                   <button class="relative px-6 py-2 bg-white border-2 border-black font-sans font-bold text-lg hover:bg-black hover:text-[#FFD700] transition-colors shadow-[4px_4px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">LINKS</button>
+               </a>
+               <a href="contact.html">
+                   <button class="relative px-6 py-2 bg-white border-2 border-black font-sans font-bold text-lg hover:bg-black hover:text-[#FFD700] transition-colors shadow-[4px_4px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">CONTACT</button>
+               </a>
+            </nav>
+        </header>
+
+        <main id="caterpillar-list" class="flex-grow flex flex-col justify-center items-center gap-16 md:pl-20 w-full">
+            </main>
+
+        <footer class="fixed bottom-4 right-6 font-mono text-xs opacity-60 pointer-events-none">
+           <p>© SANMENSO 2025</p>
+        </footer>
+    </div>
+
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 animate-in fade-in zoom-in duration-300">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <div class="relative bg-[#FFD700] border-4 border-black p-8 w-full max-w-3xl shadow-[16px_16px_0px_#000]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 p-2 border-2 border-black hover:bg-black hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <h2 id="modal-label" class="text-6xl font-black mb-2 tracking-tighter border-b-4 border-black inline-block"></h2>
+            <p id="modal-sub" class="font-mono text-xl mb-8 opacity-80"></p>
+            
+            <div id="modal-works-list" class="grid gap-4">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- データ定義 (content.js) ---
+        const MENU_ITEMS = [
+            { 
+                id: 'music', 
+                label: '音楽', 
+                sub: 'MUSIC', 
+                iconName: 'music',
+                description: "環境音とノイズの再構築",
+                color: '#FFD700' 
+            },
+            { 
+                id: 'entame', 
+                label: 'エンタメ', 
+                sub: 'ENTERTAINMENT', 
+                iconName: 'play',
+                description: "インタラクティブな実験場",
+                color: '#FFD700'
+            },
+            { 
+                id: 'fun', 
+                label: '楽しさ', 
+                sub: 'FUN & CHAOS', 
+                iconName: 'smile',
+                description: "意味のない遊びとコラージュ",
+                color: '#FFD700'
+            },
+        ];
+
+        const WORKS_DATA = [
+            { id: 1, title: "Opus_01", type: "music", year: "2025", desc: "Victor Braunerへのオマージュとして作られた楽曲。" },
+            { id: 2, title: "Geometric_Dance", type: "entame", year: "2024", desc: "円と三角形が踊るインタラクティブWeb。" },
+            { id: 3, title: "Collage_Face", type: "fun", year: "2024", desc: "顔のパーツを福笑いのように配置する。" },
+        ];
+
+        // --- オープニングアニメーション制御 ---
+        let openingTimer;
+        
+        function startOpening() {
+            const el = document.getElementById('opening');
+            
+            // Stage 1: 200ms
+            setTimeout(() => el.classList.add('stage-1'), 300);
+            
+            // Stage 2: 600ms
+            setTimeout(() => el.classList.add('stage-2'), 2400);
+            
+            // Stage 3 (End): 900ms + 100ms
+            openingTimer = setTimeout(() => {
+                skipOpening();
+            }, 2570);
+        }
+
+        function skipOpening() {
+            clearTimeout(openingTimer);
+            const el = document.getElementById('opening');
+            el.style.display = 'none'; // DOMから隠す
+            document.getElementById('main-content').classList.remove('opacity-0');
+        }
+
+        // --- 背景の浮遊図形 ---
+        function initBackgroundShapes() {
+            const container = document.getElementById('shapes-container');
+            const shapes = [];
+            
+            // 5つの図形を生成
+            for (let i = 0; i < 5; i++) {
+                const div = document.createElement('div');
+                div.className = "absolute border-2 border-black/20 opacity-30 transition-transform duration-1000 ease-out";
+                
+                const size = Math.random() * 200 + 50;
+                const isCircle = Math.random() > 0.5;
+                
+                div.style.width = `${size}px`;
+                div.style.height = `${size}px`;
+                div.style.top = `${Math.random() * 100}%`;
+                div.style.left = `${Math.random() * 100}%`;
+                div.style.borderRadius = isCircle ? '50%' : '0%';
+                
+                container.appendChild(div);
+                shapes.push(div);
+            }
+
+            // マウス追従
+            window.addEventListener('mousemove', (e) => {
+                shapes.forEach((shape, i) => {
+                    const speed = (i + 1) * 0.02;
+                    const rotate = e.clientX * 0.1;
+                    shape.style.transform = `translate(${e.clientX * speed}px, ${e.clientY * speed}px) rotate(${rotate}deg)`;
+                });
+            });
+        }
+
+        // --- YellowCaterpillarBtn のレンダリング ---
+        function renderCaterpillarButtons() {
+            const container = document.getElementById('caterpillar-list');
+            
+            MENU_ITEMS.forEach(item => {
+                const btnContainer = document.createElement('div');
+                // コンテナスタイル
+                btnContainer.className = "relative h-32 w-full max-w-2xl cursor-pointer group transition-transform duration-300 hover:scale-105";
+                btnContainer.onclick = () => openModal(item);
+
+                // インナーコンテナ
+                const inner = document.createElement('div');
+                inner.className = "absolute inset-0 flex items-center";
+
+                // 5つの円を生成 (YellowCaterpillarBtn.jsのロジック)
+                [0, 1, 2, 3, 4].forEach(i => {
+                    const circle = document.createElement('div');
+                    circle.className = "rounded-full border-2 border-black bg-[#FFD700] absolute shadow-[4px_0px_0px_rgba(0,0,0,0.1)] transition-all duration-500 ease-out group-hover:translate-x-2";
+                    circle.style.width = "120px";
+                    circle.style.height = "120px";
+                    circle.style.left = `${i * 60}px`;
+                    circle.style.zIndex = i;
+                    
+                    // isActiveロジックはCSSホバーで簡易再現
+                    inner.appendChild(circle);
+                });
+
+                // ラベルと矢印
+                const labelContainer = document.createElement('div');
+                labelContainer.className = "absolute z-10 flex items-center gap-4";
+                labelContainer.style.left = "280px";
+                labelContainer.innerHTML = `
+                    <span class="text-5xl font-serif font-bold tracking-widest text-black drop-shadow-sm group-hover:tracking-[0.2em] transition-all">
+                        ${item.label}
+                    </span>
+                    <div class="flex text-black animate-pulse">
+                        <i data-lucide="arrow-right" class="w-8 h-8 stroke-[3]"></i>
+                        <i data-lucide="arrow-right" class="w-8 h-8 stroke-[3] -ml-4"></i>
+                        <i data-lucide="arrow-right" class="w-8 h-8 stroke-[3] -ml-4"></i>
+                    </div>
+                `;
+
+                inner.appendChild(labelContainer);
+                btnContainer.appendChild(inner);
+                container.appendChild(btnContainer);
+            });
+        }
+
+        // --- モーダル (ContentModal) ---
+        function openModal(item) {
+            const modal = document.getElementById('modal');
+            const label = document.getElementById('modal-label');
+            const sub = document.getElementById('modal-sub');
+            const list = document.getElementById('modal-works-list');
+
+            label.innerText = item.label;
+            sub.innerText = item.sub;
+            
+            // ワークスデータのフィルタリング
+            const filteredWorks = WORKS_DATA.filter(w => w.type === item.id);
+            
+            list.innerHTML = ''; // クリア
+            
+            if (filteredWorks.length === 0) {
+                list.innerHTML = `<p class="text-center font-serif italic text-xl py-10">準備中... (Coming Soon)</p>`;
+            } else {
+                filteredWorks.forEach(work => {
+                    const workEl = document.createElement('div');
+                    workEl.className = "bg-white border-2 border-black p-4 flex justify-between items-center hover:translate-x-2 transition-transform cursor-pointer shadow-[4px_4px_0px_#000]";
+                    workEl.innerHTML = `
+                        <div>
+                            <h3 class="text-2xl font-bold">${work.title}</h3>
+                            <p class="text-sm text-gray-600">${work.desc}</p>
+                        </div>
+                        <span class="font-mono font-bold">${work.year}</span>
+                    `;
+                    list.appendChild(workEl);
+                });
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // アイコン再描画 (動的に追加された要素のため)
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- 初期化 ---
+        window.onload = () => {
+            initBackgroundShapes();
+            renderCaterpillarButtons();
+            lucide.createIcons(); // 初回アイコン描画
+            startOpening();
+        };
+
+    </script>
+</body>
+</html>

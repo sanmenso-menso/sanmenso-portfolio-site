@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONTACT | SANMENSO</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Zen Kaku Gothic New"', 'sans-serif'],
+                        serif: ['"Shippori Mincho"', 'serif'],
+                    },
+                    colors: {
+                        bgGreen: '#2E8B57',
+                        accentGold: '#FFD700',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: "Zen Kaku Gothic New", sans-serif;
+            background-color: #2E8B57;
+            color: black;
+            overflow-x: hidden;
+        }
+        
+        ::selection {
+            background-color: black;
+            color: #FFD700;
+        }
+
+        /* ノイズテクスチャ */
+        .noise-bg {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full relative">
+
+    <div class="fixed inset-0 opacity-10 pointer-events-none mix-blend-multiply noise-bg"></div>
+
+    <div id="bg-shapes" class="fixed inset-0 pointer-events-none overflow-hidden">
+        </div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-12 min-h-screen flex flex-col justify-between">
+        
+        <header class="flex justify-between items-center">
+            <a href="index.html">
+                <button class="px-6 py-2 bg-white border-2 border-black font-bold hover:bg-black hover:text-[#FFD700] transition-colors shadow-[4px_4px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">
+                    ← BACK TO HOME
+                </button>
+            </a>
+            <h1 class="font-serif text-2xl md:text-4xl font-bold tracking-widest opacity-80">CONTACT</h1>
+        </header>
+
+        <main class="flex-grow flex flex-col justify-center items-center gap-16 py-20">
+            
+            <div class="text-center w-full relative group max-w-4xl">
+                <p class="font-bold mb-4 text-sm tracking-widest opacity-70">MAIN CONTACT</p>
+                
+                <a 
+                    href="mailto:sanmensonoadoresu@gmail.com"
+                    class="block w-full break-all font-serif text-3xl md:text-6xl lg:text-7xl font-extrabold 
+                           bg-white border-4 border-black p-8 md:p-12
+                           shadow-[8px_8px_0px_#000] 
+                           hover:bg-black hover:text-[#FFD700] hover:shadow-[12px_12px_0px_#FFD700] hover:-translate-y-1
+                           transition-all duration-300 cursor-pointer relative"
+                >
+                    sanmensonoadoresu@gmail.com
+                    
+                    <div class="absolute top-4 right-4 w-4 h-4 rounded-full border-2 border-current opacity-50"></div>
+                </a>
+            </div>
+
+            <div class="w-full max-w-3xl">
+                <p class="text-center font-bold mb-8 text-sm tracking-widest opacity-70">ELSEWHERE</p>
+                
+                <div id="social-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const SOCIAL_LINKS = [
+            { name: 'X (Twitter)', url: 'https://x.com/SANMENSOUdrop' },
+            { name: 'YouTube', url: 'https://www.youtube.com/@SANMENSOUdrop' },
+            { name: 'niconico', url: 'https://www.nicovideo.jp/user/124526551' },
+            { name: 'note', url: 'https://note.com/sanmen' },
+            { name: 'booth', url: 'https://sanmen.booth.pm/' },
+        ];
+
+        // --- INITIALIZATION ---
+        window.addEventListener('load', () => {
+            initBackgroundShapes();
+            renderSocialLinks();
+        });
+
+        // --- RENDER SOCIAL LINKS ---
+        function renderSocialLinks() {
+            const container = document.getElementById('social-grid');
+            
+            SOCIAL_LINKS.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.target = "_blank";
+                a.rel = "noopener noreferrer";
+                a.className = `group relative block bg-white border-2 border-black p-6
+                             shadow-[4px_4px_0px_#000]
+                             hover:bg-black hover:text-[#FFD700] 
+                             active:translate-x-1 active:translate-y-1 active:shadow-none
+                             transition-all duration-200`;
+                
+                a.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xl md:text-2xl">${link.name}</span>
+                        <span class="text-2xl transform group-hover:rotate-45 transition-transform duration-300">↗</span>
+                    </div>
+                    <div class="absolute bottom-2 left-2 w-full h-[1px] bg-current opacity-20 scale-x-0 group-hover:scale-x-90 transition-transform origin-left duration-500"></div>
+                `;
+                
+                container.appendChild(a);
+            });
+        }
+
+        // --- BACKGROUND SHAPES & MOUSE EFFECT ---
+        function initBackgroundShapes() {
+            const container = document.getElementById('bg-shapes');
+            const shapes = [];
+
+            // 3つの浮遊オブジェクトを生成
+            for (let i = 0; i < 3; i++) {
+                const div = document.createElement('div');
+                div.className = "absolute border-2 border-black/10 opacity-40";
+                
+                // ランダムな位置とサイズ
+                div.style.top = `${Math.random() * 80 + 10}%`;
+                div.style.left = `${Math.random() * 80 + 10}%`;
+                div.style.width = `${Math.random() * 150 + 50}px`;
+                div.style.height = `${Math.random() * 150 + 50}px`;
+                div.style.borderRadius = i % 2 === 0 ? '50%' : '0%';
+                
+                container.appendChild(div);
+                shapes.push(div);
+            }
+
+            // マウス追従ロジック
+            window.addEventListener('mousemove', (e) => {
+                const x = e.clientX;
+                const y = e.clientY;
+
+                shapes.forEach((shape, index) => {
+                    // React版の計算式: (mousePos.x * (i+1) * 0.01)
+                    const moveX = x * (index + 1) * 0.01;
+                    const moveY = y * (index + 1) * 0.01;
+                    
+                    shape.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>

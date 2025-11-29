@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANMENSO | LINKS EXCAVATION</title>
+    <!-- Google Fonts: サイトで使用されているフォント -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700;800&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Zen Kaku Gothic New"', 'sans-serif'],
+                        serif: ['"Shippori Mincho"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* サイト共通カラーパレット */
+            --color-bg: #2E8B57; /* Sea Green */
+            --color-accent: #FFD700; /* Gold */
+            --color-text: #000000;
+            --color-white: #ffffff;
+            --border-width: 3px;
+            --shadow-hard: 6px 6px 0px #000;
+            
+            --font-sans: 'Zen Kaku Gothic New', sans-serif;
+            --font-serif: 'Shippori Mincho', serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-bg);
+            font-family: var(--font-sans);
+            color: var(--color-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- 背景演出 (ノイズ & 浮遊図形) --- */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.15;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 0;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            border: 2px solid rgba(0,0,0,0.1);
+            opacity: 0.4;
+            transition: transform 0.5s ease-out;
+        }
+
+        /* --- レイアウト構造 --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- ヘッダー & ナビゲーション --- */
+        header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        /* 簡易ロゴ再現 */
+        .logo-box {
+            background: white;
+            border: var(--border-width) solid black;
+            padding: 8px 16px;
+            box-shadow: 4px 4px 0px #000;
+            display: inline-block;
+            margin-bottom: 20px;
+            transform: skewX(-5deg);
+        }
+        .logo-text {
+            font-family: var(--font-serif);
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.05em;
+        }
+
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: white;
+            border: var(--border-width) solid black;
+            padding: 10px 24px;
+            font-weight: 900;
+            font-size: 1rem;
+            text-decoration: none;
+            color: black;
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.1s;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: black;
+            color: var(--color-accent);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000;
+        }
+
+        .nav-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        /* --- メインコンテンツエリア --- */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin: 0;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            font-weight: 800;
+        }
+        
+        .subtitle {
+            font-family: var(--font-sans);
+            font-weight: 700;
+            background: black;
+            color: var(--color-accent);
+            padding: 4px 12px;
+            display: inline-block;
+            margin-top: 10px;
+            transform: rotate(-1deg);
+        }
+
+        /* --- 発掘コンテナ (展示ケース風) --- */
+        .excavation-frame {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 60vh;
+            min-height: 500px;
+            background: #000; /* 内部は黒 */
+            border: 4px solid black;
+            /* サイトのContentModal等に合わせたハードシャドウ */
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.5); 
+            margin-bottom: 40px;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* --- 内部レイヤー構造 --- */
+        
+        /* 1. 虚無（隠しルート） */
+        .void-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 隠しページの雰囲気 */
+            background: radial-gradient(circle at center, #300 0%, #000 90%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .portal-btn {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 50, 50, 0.5);
+            color: #ff4d4d;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: var(--font-serif);
+            font-size: 28px;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.8) rotate(10deg);
+            transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+            text-decoration: none;
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.2);
+            pointer-events: auto;
+        }
+        .portal-btn span {
+            font-size: 12px;
+            margin-top: 10px;
+            letter-spacing: 0.2em;
+            font-family: var(--font-sans);
+            color: #fff;
+        }
+        .portal-btn:hover {
+            background: rgba(80, 0, 0, 0.8);
+            box-shadow: 0 0 100px rgba(255, 0, 0, 0.6);
+            border-color: #ff0000;
+            transform: scale(1.05) rotate(0deg);
+        }
+
+        /* 2. リンク層（表向きのコンテンツ） */
+        .link-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 85%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            z-index: 2;
+            pointer-events: none; /* 初期状態ではクリック不可（岩があるため） */
+        }
+
+        @media (max-width: 768px) {
+            .link-layer {
+                grid-template-columns: repeat(2, 1fr);
+                height: 90%;
+                gap: 15px;
+            }
+        }
+
+        .site-link-card {
+            background: white;
+            border: 3px solid black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: black;
+            padding: 10px;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+            position: relative;
+            pointer-events: auto; /* リンク自体は有効 */
+        }
+
+        .site-link-card:hover {
+            transform: translate(-2px, -2px);
+            background-color: var(--color-accent);
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .card-title {
+            font-family: var(--font-sans);
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .card-desc {
+            font-size: 0.75rem;
+            margin-top: 5px;
+            opacity: 0.7;
+            font-family: var(--font-serif);
+        }
+
+        /* 崩壊アニメーション用クラス */
+        .blown-away {
+            transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) !important;
+            opacity: 0;
+            transition: transform 1.2s cubic-bezier(0.1, 0.7, 1.0, 0.1), opacity 0.8s;
+            pointer-events: none;
+        }
+
+        /* 3. 岩盤層 (Canvas) */
+        #rock-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* 4. 入力層 (最前面・透明) */
+        #input-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            background: transparent;
+            cursor: crosshair; /* 狙いをつけるカーソル */
+        }
+
+        /* --- エフェクト類 --- */
+        .crack-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 11;
+        }
+        .crack-path {
+            fill: none;
+            stroke: #111;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .danger-tint {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 30%, rgba(50, 0, 0, 0.7) 100%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 15;
+            transition: opacity 1s;
+            mix-blend-mode: multiply;
+        }
+
+        .shard {
+            position: absolute;
+            background-color: #333; /* 岩の色 */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E");
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 12;
+            transition: transform 1.5s cubic-bezier(0.05, 0.7, 0.1, 1.0), opacity 1.2s;
+        }
+
+        /* 振動アニメーション定義 */
+        @keyframes shake-fix {
+            0% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) translate(2px, 2px) rotate(0.5deg); }
+            50% { transform: translate(-50%, -50%) translate(-1px, -2px) rotate(-0.5deg); }
+            75% { transform: translate(-50%, -50%) translate(-3px, 0px) rotate(0.5deg); }
+            100% { transform: translate(-50%, -50%) translate(1px, -1px) rotate(-0.5deg); }
+        }
+        .shake-lvl1 { animation: shake-fix 0.1s infinite; }
+        .shake-lvl2 { animation: shake-fix 0.05s infinite; }
+        .shake-lvl3 { animation: shake-fix 0.03s infinite; }
+
+        @keyframes shake-c-light {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(1px, 1px); }
+            100% { transform: translate(-1px, -1px); }
+        }
+        @keyframes shake-c-heavy {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-3px, 4px) rotate(1deg); }
+            100% { transform: translate(3px, -4px) rotate(-1deg); }
+        }
+        .shake-container-light { animation: shake-c-light 0.1s infinite; }
+        .shake-container-heavy { animation: shake-c-heavy 0.04s infinite; }
+
+        /* リセットボタン */
+        .reset-btn {
+            position: absolute;
+            bottom: -40px;
+            right: 0;
+            color: rgba(0,0,0,0.5);
+            background: transparent;
+            border: none;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s;
+            font-weight: bold;
+        }
+        .reset-btn:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        footer {
+            font-family: monospace;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 背景テクスチャ -->
+    <div class="noise-overlay"></div>
+    
+    <div id="shapes-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <div class="container">
+        <!-- ヘッダー -->
+         <header class="flex justify-between items-center">   
+             <a href="index.html">
+                <button class="px-6 py-2 bg-white border-2 border-black font-bold hover:bg-black hover:text-[#FFD700] transition-colors shadow-[4px_4px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none">
+                    ← BACK TO HOME
+                </button>
+             </a>
+        </header>
+
+        <main>
+            <div class="page-title">
+                <h1>相互リンク</h1>
+                <span class="subtitle">ページを削って相互リンクを掘り起こしてね！</span>
+            </div>
+
+            <!-- 発掘フレーム -->
+            <div class="excavation-frame" id="frame">
+                
+                <!-- 1. 隠しルート -->
+                <div class="void-layer">
+                    <a href="#" class="portal-btn" id="portal-btn">
+                        SECRET GATE
+                        <span>裏口へ・・・</span>
+                    </a>
+                </div>
+
+                <!-- 2. リンク一覧 -->
+                <div class="link-layer" id="link-layer">
+                    <a href="#" class="site-link-card">
+                        <span class="card-title">FRIEND SITE A</span>
+                        <span class="card-desc">Design / Art</span>
+                    </a>
+                    <a href="#" class="site-link-card">
+                        <span class="card-title">GALLERY B</span>
+                        <span class="card-desc">Illustrations</span>
+                    </a>
+                    <a href="#" class="site-link-card">
+                        <span class="card-title">PORTFOLIO C</span>
+                        <span class="card-desc">Web Works</span>
+                    </a>
+                    <a href="#" class="site-link-card">
+                        <span class="card-title">MUSIC D</span>
+                        <span class="card-desc">Sound Cloud</span>
+                    </a>
+                    <a href="#" class="site-link-card">
+                        <span class="card-title">SHOP E</span>
+                        <span class="card-desc">Goods</span>
+                    </a>
+                    <a href="#" class="site-link-card">
+                        <span class="card-title">BLOG F</span>
+                        <span class="card-desc">Daily Log</span>
+                    </a>
+                </div>
+
+                <!-- 3. 岩盤 -->
+                <div id="rock-container">
+                    <canvas id="scratch-canvas"></canvas>
+                    <div class="danger-tint" id="danger-tint"></div>
+                    <svg class="crack-overlay" id="crack-overlay">
+                        <path id="crack-1" class="crack-path" d="" />
+                        <path id="crack-2" class="crack-path" d="" />
+                        <path id="crack-3" class="crack-path" d="" />
+                    </svg>
+                </div>
+
+                <!-- 4. 入力層 -->
+                <div id="input-layer"></div>
+
+                <button class="reset-btn" id="reset-btn" onclick="location.reload()">[ RESTORE REALITY ]</button>
+            </div>
+        </main>
+
+    </div>
+
+<script>
+
+    // --- 発掘ロジック (耐久調整版) ---
+    const frame = document.getElementById('frame');
+    const container = document.getElementById('rock-container');
+    const inputLayer = document.getElementById('input-layer');
+    const canvas = document.getElementById('scratch-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    
+    const linkLayer = document.getElementById('link-layer');
+    const links = document.querySelectorAll('.site-link-card');
+    const portalBtn = document.getElementById('portal-btn');
+    const dangerTint = document.getElementById('danger-tint');
+    const resetBtn = document.getElementById('reset-btn');
+    
+    const cracks = [
+        document.getElementById('crack-1'),
+        document.getElementById('crack-2'),
+        document.getElementById('crack-3')
+    ];
+
+    let width, height;
+    
+    const MAX_HP = 211000; 
+    let currentHp = MAX_HP;
+    let isBroken = false;
+    let shakeTimeout;
+
+    // --- index.html と共通の背景浮遊図形 ---
+    function initBackgroundShapes() {
+        const container = document.getElementById('shapes-container');
+        const shapes = [];
+        
+        // 5つの図形を生成
+        for (let i = 0; i < 5; i++) {
+            const div = document.createElement('div');
+            // Tailwindのクラスでスタイル指定
+            div.className = "absolute border-2 border-black/20 opacity-30 transition-transform duration-1000 ease-out";
+            
+            const size = Math.random() * 200 + 50;
+            const isCircle = Math.random() > 0.5;
+            
+            div.style.width = `${size}px`;
+            div.style.height = `${size}px`;
+            div.style.top = `${Math.random() * 100}%`;
+            div.style.left = `${Math.random() * 100}%`;
+            div.style.borderRadius = isCircle ? '50%' : '0%';
+            
+            container.appendChild(div);
+            shapes.push(div);
+        }
+
+        // マウス追従
+        window.addEventListener('mousemove', (e) => {
+            shapes.forEach((shape, i) => {
+                const speed = (i + 1) * 0.02;
+                const rotate = e.clientX * 0.1;
+                shape.style.transform = `translate(${e.clientX * speed}px, ${e.clientY * speed}px) rotate(${rotate}deg)`;
+            });
+        });
+    }
+
+    function init() {
+        width = frame.clientWidth;
+        height = frame.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+        drawRock();
+        setupCracks();
+        initBackgroundShapes();
+    }
+
+    window.addEventListener('resize', init);
+
+    function setupCracks() {
+        cracks.forEach(path => {
+            let d = "";
+            let points = 5;
+            let cx = width/2 + (Math.random()-0.5)*width*0.3;
+            let cy = height/2 + (Math.random()-0.5)*height*0.3;
+            d += `M${cx},${cy} `;
+            for(let i=0; i<points; i++) {
+                cx += (Math.random() - 0.5) * (width * 0.8);
+                cy += (Math.random() - 0.5) * (height * 0.8);
+                d += `L${cx},${cy} `;
+            }
+            path.setAttribute('d', d);
+        });
+    }
+
+    function drawRock() {
+        ctx.globalCompositeOperation = 'source-over';
+        // 岩の色：少しサイト背景より明るいか、暗い色でコントラストをつける
+        ctx.fillStyle = '#1e5e3a'; 
+        ctx.fillRect(0, 0, width, height);
+
+        // ノイズ
+        const noiseCount = (width * height) / 30;
+        for (let i = 0; i < noiseCount; i++) {
+            ctx.fillStyle = Math.random() > 0.5 ? '#143d26' : '#2E8B57';
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            ctx.fillRect(x, y, 2, 2);
+        }
+        
+        // 文字装飾
+        ctx.save();
+        ctx.translate(width/2, height/2);
+        const fontSize = Math.min(width, height) / 5;
+        ctx.font = `900 ${fontSize}px "Zen Kaku Gothic New"`;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; 
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.rotate(-Math.PI / 12);
+        ctx.restore();
+    }
+
+    function getPos(e) {
+        const rect = inputLayer.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function scratch(e) {
+        if (isBroken) return;
+        if(e.type === 'touchmove') { e.preventDefault(); }
+
+        const pos = getPos(e);
+
+        ctx.globalCompositeOperation = 'destination-out';
+        
+        const density = 20; 
+        for(let i=0; i<density; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = Math.random() * 25; 
+            const size = Math.random() * 5 + 2;
+            
+            ctx.beginPath();
+            ctx.arc(pos.x + Math.cos(angle)*r, pos.y + Math.sin(angle)*r, size, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        takeDamage(50); 
+    }
+
+    function triggerLinkShake() {
+        const ratio = currentHp / MAX_HP;
+        if (ratio > 0.5) return;
+
+        let shakeClass = 'shake-lvl1';
+        if (ratio < 0.1) shakeClass = 'shake-lvl3';
+        else if (ratio < 0.3) shakeClass = 'shake-lvl2';
+
+        linkLayer.classList.remove('shake-lvl1', 'shake-lvl2', 'shake-lvl3');
+        void linkLayer.offsetWidth; // リフロー
+        linkLayer.classList.add(shakeClass);
+
+        clearTimeout(shakeTimeout);
+        shakeTimeout = setTimeout(() => {
+            linkLayer.classList.remove('shake-lvl1', 'shake-lvl2', 'shake-lvl3');
+        }, 150);
+    }
+
+    function takeDamage(amount) {
+        currentHp -= amount;
+        if (currentHp < 0) currentHp = 0;
+
+        const ratio = currentHp / MAX_HP;
+
+        if (ratio < 0.50) {
+            cracks[0].style.opacity = 0.5;
+            triggerLinkShake();
+        }
+        
+        if (ratio < 0.20) {
+            cracks[1].style.opacity = 0.8;
+            dangerTint.style.opacity = 1;
+            if (!frame.classList.contains('shake-container-light')) {
+                frame.classList.add('shake-container-light');
+            }
+        }
+        
+        if (ratio < 0.05) {
+            cracks[2].style.opacity = 1;
+            frame.classList.remove('shake-container-light');
+            frame.classList.add('shake-container-heavy');
+        }
+
+        if (ratio <= 0) {
+            cataclysm();
+        }
+    }
+
+    function cataclysm() {
+        isBroken = true;
+        frame.classList.remove('shake-container-light', 'shake-container-heavy');
+        linkLayer.classList.remove('shake-lvl1', 'shake-lvl2', 'shake-lvl3');
+        
+        document.getElementById('crack-overlay').style.display = 'none';
+        dangerTint.style.opacity = 0;
+        inputLayer.style.display = 'none'; // 入力層を消して奥を触れるように
+
+        const shards = [];
+        for (let i=0; i<4; i++) {
+            const shard = document.createElement('div');
+            shard.className = 'shard';
+            if(i===0) shard.style.clipPath = 'polygon(0 0, 50% 0, 50% 50%, 0 50%)';
+            if(i===1) shard.style.clipPath = 'polygon(50% 0, 100% 0, 100% 50%, 50% 50%)';
+            if(i===2) shard.style.clipPath = 'polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%)';
+            if(i===3) shard.style.clipPath = 'polygon(0 50%, 50% 50%, 50% 100%, 0 100%)';
+            container.appendChild(shard);
+            shards.push(shard);
+        }
+        canvas.style.display = 'none';
+
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                const flyDist = Math.max(width, height) * 1.5;
+                shards[0].style.transform = `translate(-${flyDist}px, -${flyDist}px) rotate(-45deg) scale(0.9)`;
+                shards[1].style.transform = `translate(${flyDist}px, -${flyDist}px) rotate(45deg) scale(0.9)`;
+                shards[2].style.transform = `translate(${flyDist}px, ${flyDist}px) rotate(-45deg) scale(0.9)`;
+                shards[3].style.transform = `translate(-${flyDist}px, ${flyDist}px) rotate(45deg) scale(0.9)`;
+                shards.forEach(s => s.style.opacity = '0');
+
+                // リンクも吹き飛ばす
+                links.forEach((link, index) => {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.max(width, height) + 200;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    const rot = (Math.random() - 0.5) * 720;
+                    link.style.setProperty('--tx', `${tx}px`);
+                    link.style.setProperty('--ty', `${ty}px`);
+                    link.style.setProperty('--rot', `${rot}deg`);
+                    setTimeout(() => {
+                        link.classList.add('blown-away');
+                    }, index * 50);
+                });
+            }, 50);
+        });
+
+        setTimeout(() => {
+            frame.style.pointerEvents = 'none'; // 枠のクリック透過
+            portalBtn.style.opacity = '1';
+            portalBtn.style.transform = 'scale(1) rotate(0deg)';
+            resetBtn.style.opacity = '1';
+            resetBtn.style.pointerEvents = 'auto';
+        }, 1200);
+    }
+
+    // クリック処理（削れている場所なら下のリンクをクリック）
+    inputLayer.addEventListener('click', (e) => {
+        if(isBroken) return;
+        const pos = getPos(e);
+        const pixel = ctx.getImageData(pos.x, pos.y, 1, 1).data;
+        if (pixel[3] < 10) { 
+            inputLayer.style.display = 'none';
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            if (el && el.closest('a')) {
+                el.closest('a').click();
+            }
+            inputLayer.style.display = 'block';
+        }
+    });
+
+    // ホバー・タッチで削る
+    inputLayer.addEventListener('mousemove', scratch);
+    inputLayer.addEventListener('touchmove', scratch, {passive: false});
+    inputLayer.addEventListener('touchstart', scratch, {passive: false});
+
+    // デバッグ用 (Bキーで破壊)
+    window.addEventListener('keydown', (e) => {
+        if(e.key.toLowerCase() === 'b' && !isBroken) {
+            takeDamage(MAX_HP);
+        }
+    });
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
